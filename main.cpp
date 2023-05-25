@@ -81,41 +81,62 @@ const char* AsciiAnim::LoopGetFrame()
     return ret;
 }
 
-char convert_gray2ascii(char c)
+char Gray2Ascii(uint8_t c)
 {
+    // http://paulbourke.net/dataformats/asciiart
+    const char* table = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+    int idx = ((double)c / 255.0) * sizeof(table);
+    return table[idx];
+}
+
+int Image2Ascii(cv::Mat& frame, int w, int h, AsciiAnim& anim)
+{
+    cv::Mat gray, resized;
+    cv::cvtColor(frame, gray, cv::COLOR_RGB2GRAY);
+    cv::resize(gray, resized, cv::Size(w, h));
+    char* buf = new char[w*h];
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            uint8_t c = resized.data[y * w + x];
+            buf[y * w + x] = Gray2Ascii(c);
+        }
+    }
+    anim.Insert(buf, w*h);
+    delete [] buf;
     return 0;
 }
 
-int video_preproc(const std::string& path, int w, int h, AsciiAnim& anim)
+int ImageFile2Ascii(const std::string& path, int w, int h, AsciiAnim& anim)
+{
+    cv::Mat frame;
+    frame = cv::imread(path, cv::COLOR_RGB2GRAY);
+    Image2Ascii(frame, w, h, anim);
+    return 0;
+}
+
+int VideoFile2Ascii(const std::string& path, int w, int h, AsciiAnim& anim)
 {
     cv::VideoCapture vid(path);
     if (!vid.isOpened()) {
         return -1;
     }
-    cv::Mat frame, gray, resized;
-    char* buf = new char[w*h];
+    cv::Mat frame;
     while (true) {
         if (!vid.read(frame)) {
             break;
         }
-        cv::cvtColor(frame, gray, cv::COLOR_RGB2GRAY);
-        cv::resize(gray, resized, cv::Size(w, h));
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                uint8_t c = resized.data[y * w + x];
-                buf[y * w + x] = convert_gray2ascii(c);
-            }
-        }
-        anim.Insert(buf, w*h);
+        Image2Ascii(frame, w, h, anim);
     }
-    delete [] buf;
     vid.release();
     return 0;
 }
 
 int main(int argc, char **argv)
 {
-    printf("Hello world\n");
+    if (argc != 3) {
+        printf("Usage: %s [option] [path/to/video/file]\nOption:\n\t-I: Image\n\t-V: Video\n", argv[0]);
+        return 0;
+    }
     WINDOW *mainscr = initscr();
     curs_set(0);
     noecho();
@@ -123,19 +144,32 @@ int main(int argc, char **argv)
     mousemask(BUTTON1_RELEASED,0);
     MEVENT event;
     int i, j;
-    uint64_t counter = 0;
     bool loop = true;
     int maxh, maxw;
+
+    AsciiAnim anim;
     getmaxyx(mainscr, maxh, maxw);
-    printf("maxx = %d, maxy = %d\n", maxw, maxh);
-    getch();
+    anim.Init(maxw, maxh);
+
+    if (!strncmp(argv[1], "-I", 2)) {
+        ImageFile2Ascii(argv[2], maxw, maxh, anim);
+    } else {
+        VideoFile2Ascii(argv[2], maxw, maxh, anim);
+    }
+
+    const char* buf = NULL;
     while (loop) {
         clear();
-        counter++;
-        for (int a = 0; a < 128; a++) {
-            mvaddch(a / 16, (a % 16) * 2, (char)a);
-            mvaddch(a / 16, (a % 16) * 2 + 1, ' ');
+        buf = anim.LoopGetFrame();
+        for (int y = 0; y < maxh; y++) {
+            for (int x = 0; x < maxw; x++) {
+                mvaddch(y, x, buf[y * maxw + x]);
+            }
         }
+//        for (int a = 0; a < 128; a++) {
+//            mvaddch(a / 16, (a % 16) * 2, (char)a);
+//            mvaddch(a / 16, (a % 16) * 2 + 1, ' ');
+//        }
 //        for(i = 0; i < 10; i++) {
 //            for(j = 0; j < 20; j++) {
 //                if (j/2 == i) {
@@ -146,15 +180,12 @@ int main(int argc, char **argv)
 //                //mvaddch(i, j, '0');
 //            }
 //        }
-        printw("\n%lu", counter);
-        printw("\nmaxx = %d, maxy = %d\n", maxw, maxh);
         refresh();
         switch (getch()){
             case 'q':
                 loop = false;
                 break;
         }
-        usleep(1000);
     }
     endwin();
     return 0;
