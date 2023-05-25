@@ -137,49 +137,55 @@ int main(int argc, char **argv)
         printf("Usage: %s [option] [path/to/video/file]\nOption:\n\t-I: Image\n\t-V: Video\n", argv[0]);
         return 0;
     }
-    WINDOW *mainscr = initscr();
-    curs_set(0);
-    noecho();
-    keypad(stdscr, TRUE);
-    mousemask(BUTTON1_RELEASED,0);
-    MEVENT event;
+    enum {
+        TYPE_IMAGE,
+        TYPE_VIDEO,
+        TYPE_ALL
+    } input_type;
+    WINDOW *mainscr = NULL;
     int i, j;
     bool loop = true;
     int maxh, maxw;
-
     AsciiAnim anim;
-    getmaxyx(mainscr, maxh, maxw);
-    anim.Init(maxw, maxh);
-
-    if (!strncmp(argv[1], "-I", 2)) {
-        ImageFile2Ascii(argv[2], maxw, maxh, anim);
-    } else {
-        VideoFile2Ascii(argv[2], maxw, maxh, anim);
-    }
 
     const char* buf = NULL;
+    mainscr = initscr();
+    if (!mainscr) {
+        printf("Error, exit.\n");
+    }
+    getmaxyx(mainscr, maxh, maxw);
+    curs_set(0);
+    noecho();
+    keypad(stdscr, TRUE);
+    anim.Init(maxw, maxh);
+
+    printw("Loading file %s ...\n", argv[2]);
+    refresh();
+    if (!strncmp(argv[1], "-I", 2)) {
+        ImageFile2Ascii(argv[2], maxw, maxh, anim);
+        input_type = TYPE_IMAGE;
+    } else {
+        VideoFile2Ascii(argv[2], maxw, maxh, anim);
+        input_type = TYPE_VIDEO;
+    }
+
     while (loop) {
-        clear();
         buf = anim.LoopGetFrame();
+        switch (input_type) {
+            case TYPE_IMAGE:
+                clear();
+                break;
+            case TYPE_VIDEO:
+                timeout(33);
+                break;
+            default:
+                break;
+        }
         for (int y = 0; y < maxh; y++) {
             for (int x = 0; x < maxw; x++) {
                 mvaddch(y, x, buf[y * maxw + x]);
             }
         }
-//        for (int a = 0; a < 128; a++) {
-//            mvaddch(a / 16, (a % 16) * 2, (char)a);
-//            mvaddch(a / 16, (a % 16) * 2 + 1, ' ');
-//        }
-//        for(i = 0; i < 10; i++) {
-//            for(j = 0; j < 20; j++) {
-//                if (j/2 == i) {
-//                    mvaddch(i, j, '-');
-//                } else {
-//                    mvaddch(i, j, ' ');
-//                }
-//                //mvaddch(i, j, '0');
-//            }
-//        }
         refresh();
         switch (getch()){
             case 'q':
