@@ -1,0 +1,13 @@
+*
+!*/
+!*.*
+obj/
+*.bak
+*.o
+*.png
+*.bmp
+*.jpg
+*.mp4
+*.avi
+*.webm
+*.out
