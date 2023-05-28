@@ -43,6 +43,7 @@ int main(int argc, char **argv)
     } input_type;
     WINDOW *mainscr = NULL;
     bool loop = true;
+    bool paused = false;
     int maxh, maxw;
     AsciiAnim anim;
 
@@ -85,7 +86,11 @@ int main(int argc, char **argv)
                 clear();
                 break;
             case TYPE_VIDEO:
-                timeout(33);
+                if (!paused) {
+                    timeout(20);
+                } else {
+                    timeout(-1);
+                }
                 break;
             default:
                 break;
@@ -99,6 +104,9 @@ int main(int argc, char **argv)
         switch (getch()){
             case 'q':
                 loop = false;
+                break;
+            case ' ':
+                paused = !paused;
                 break;
         }
     }
