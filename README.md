@@ -12,3 +12,9 @@ I create this project just for fun :)
 - OpenCV 4.x
 - ncurses
 
+## Preview
+#### Source: Neko Matsuri's Discord channel
+![Preview image](doc/img/preview.jpg)
+
+#### Source: [Neko Matsuri's Youtube channel](https://www.youtube.com/watch?v=GdHoBNL33hU)
+![Preview video](doc/img/preview.gif)
