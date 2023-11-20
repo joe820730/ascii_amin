@@ -90,7 +90,7 @@ int main(int argc, char **argv)
                 break;
             case TYPE_VIDEO:
                 if (!paused) {
-                    timeout(20);
+                    timeout(33);
                 } else {
                     timeout(-1);
                 }
