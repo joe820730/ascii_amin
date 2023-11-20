@@ -9,7 +9,7 @@ char Gray2Ascii(uint8_t c)
 {
     // http://paulbourke.net/dataformats/asciiart
     const char* table = " .'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
-    int idx = ((double)c / 255.0) * sizeof(table);
+    int idx = strlen(table) * c / 256;
     return table[idx];
 }
 
