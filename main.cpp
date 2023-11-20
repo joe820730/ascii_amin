@@ -78,6 +78,9 @@ int main(int argc, char **argv)
         VideoFile2Ascii(argv[2], maxw, maxh, anim, color_support);
         input_type = TYPE_VIDEO;
     }
+    printf("Press ANY to start.\n");
+    fgetc(stdin);
+    printf("Start playing...");
 
     while (loop) {
         buf = anim.LoopGetFrame();
