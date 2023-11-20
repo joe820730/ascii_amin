@@ -1,10 +1,10 @@
 #include "utils.h"
-#include "asciiamin.h"
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <ncurses.h>
 #include <unistd.h>
+#include <string.h>
 #include <iostream>
 #include <vector>
 
@@ -78,9 +78,11 @@ int main(int argc, char **argv)
         VideoFile2Ascii(argv[2], maxw, maxh, anim, color_support);
         input_type = TYPE_VIDEO;
     }
-    printf("Press ANY to start.\n");
+    printw("Press ANY to start.\n");
+    refresh();
     fgetc(stdin);
-    printf("Start playing...");
+    printw("Start playing...");
+    refresh();
 
     while (loop) {
         buf = anim.LoopGetFrame();

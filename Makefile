@@ -1,5 +1,5 @@
 DIR = obj
-OBJECTS = asciiamin.o main.o utils.o
+OBJECTS = asciianim.o main.o utils.o
 OBJ := $(foreach obj, $(OBJECTS), $(DIR)/$(obj))
 
 TARGET := AsciiPlayer

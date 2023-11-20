@@ -1,4 +1,7 @@
-#include "asciiamin.h"
+#include "asciianim.h"
+#include <cstdlib>
+#include <cstring>
+#include <cstddef>
 
 AsciiAnim::AsciiAnim()
 {

@@ -1,10 +1,7 @@
 #ifndef ASCIIAMIN_H_INCLUDED
 #define ASCIIAMIN_H_INCLUDED
 #include <stdint.h>
-#include <cstddef>
 #include <vector>
-#include <cstdlib>
-#include <cstring>
 
 class AsciiAnim
 {

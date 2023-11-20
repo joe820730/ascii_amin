@@ -2,7 +2,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
-#include "asciiamin.h"
 #include "utils.h"
 
 char Gray2Ascii(uint8_t c)
